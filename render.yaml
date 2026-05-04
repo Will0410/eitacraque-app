@@ -23,7 +23,7 @@ services:
     name: eitacraque-web
     runtime: node
     plan: free
-    buildCommand: VITE_API_URL=https://eitacraque-api.onrender.com npm ci && npm run build:web
+    buildCommand: npm ci && VITE_API_URL=https://eitacraque-api.onrender.com npm run build:web
     startCommand: npm --workspace @eitacraque/web run start
     envVars:
       - key: NODE_ENV
