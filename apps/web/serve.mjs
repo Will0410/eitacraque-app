@@ -17,20 +17,30 @@ const mimeTypes = {
   '.svg': 'image/svg+xml',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
   '.gif': 'image/gif',
+  '.ico': 'image/x-icon',
   '.woff': 'font/woff',
   '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
+  '.eot': 'application/vnd.ms-fontobject',
 };
 
 function serveFile(filePath, res) {
   try {
     const content = readFileSync(filePath);
-    const ext = extname(filePath);
-    res.writeHead(200, { 'Content-Type': mimeTypes[ext] || 'text/plain' });
+    const ext = extname(filePath).toLowerCase();
+    const contentType = mimeTypes[ext] || 'text/plain';
+    console.log(`[Server] Serving ${filePath} as ${contentType}`);
+    res.writeHead(200, { 
+      'Content-Type': contentType,
+      'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=31536000'
+    });
     res.end(content);
-  } catch {
+  } catch (err) {
+    console.error(`[Server] Error reading ${filePath}:`, err.message);
     res.writeHead(500);
-    res.end('Error');
+    res.end('Internal Server Error');
   }
 }
 
@@ -60,5 +70,6 @@ createServer((req, res) => {
     return serveFile(indexFile, res);
   }
 }).listen(port, '0.0.0.0', () => {
-  console.log(`Server running on port ${port}`);
+  console.log(`[Server] Running on http://0.0.0.0:${port}`);
+  console.log(`[Server] Serving files from ${distPath}`);
 });
