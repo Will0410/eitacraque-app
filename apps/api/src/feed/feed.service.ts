@@ -18,7 +18,7 @@ export class FeedService {
         where: { followerId: viewerId },
         select: { followedId: true },
       });
-      whereExtra = { athleteId: { in: follows.map((f) => f.followedId) } };
+      whereExtra = { athleteId: { in: follows.map((f: typeof follows[0]) => f.followedId) } };
     }
     if (tab === FeedTab.TRENDING) {
       whereExtra = {
@@ -41,10 +41,10 @@ export class FeedService {
       ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
     });
 
-    const items = clips.slice(0, PAGE_SIZE).map((clip) => {
-      const ratings = clip.ratings.map((r) => r.score);
+    const items = clips.slice(0, PAGE_SIZE).map((clip: typeof clips[0]) => {
+      const ratings = clip.ratings.map((r: typeof clip.ratings[0]) => r.score);
       const communityAverage = ratings.length
-        ? Number((ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(2))
+        ? Number((ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length).toFixed(2))
         : null;
       return {
         clip: {

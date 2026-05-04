@@ -84,9 +84,9 @@ export class AnalysesService {
       where: { clipId, user: { accountType: 'SCOUT' } },
     });
 
-    const allScores = clip.ratings.map((r) => r.score);
+    const allScores = clip.ratings.map((r: typeof clip.ratings[0]) => r.score);
     const scoutScores = scoutRatings.map((r) => r.score);
-    const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
+    const avg = (xs: number[]) => (xs.length ? xs.reduce((a: number, b: number) => a + b, 0) / xs.length : 0);
 
     return {
       ai: clip.aiAnalysis
@@ -96,7 +96,7 @@ export class AnalysesService {
             summary: clip.aiAnalysis.summary,
             strengths: clip.aiAnalysis.strengths,
             weaknesses: clip.aiAnalysis.weaknesses,
-            attributeScores: clip.aiAnalysis.attributeScores.map((a) => ({
+            attributeScores: clip.aiAnalysis.attributeScores.map((a: typeof clip.aiAnalysis.attributeScores[0]) => ({
               attribute: a.attribute,
               score: a.score,
             })),
