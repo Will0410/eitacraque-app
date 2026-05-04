@@ -8,6 +8,7 @@
     "build": "vue-tsc -b && vite build",
     "build:web": "npm --workspace @eitacraque/shared run build && vue-tsc -b && vite build",
     "preview": "vite preview",
+    "start": "sirv dist --single --cors",
     "lint": "eslint \"src/**/*.{ts,vue}\""
   },
   "dependencies": {
@@ -25,6 +26,7 @@
     "@vitejs/plugin-vue": "^5.2.0",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
+    "sirv-cli": "^2.0.2",
     "tailwindcss": "^3.4.15",
     "typescript": "^5.6.3",
     "vite": "^5.4.11",
