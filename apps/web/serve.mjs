@@ -1,24 +1,13 @@
 #!/usr/bin/env node
 
-import http from 'http';
-import fs from 'fs';
-import path from 'path';
+import { createServer } from 'http';
+import { readFileSync, statSync } from 'fs';
+import { join, extname, resolve } from 'path';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const port = process.env.PORT || 4173;
-const distPath = path.join(__dirname, 'dist');
-
-console.log(`[Server] Starting on port ${port}`);
-console.log(`[Server] Dist path: ${distPath}`);
-
-if (!fs.existsSync(distPath)) {
-  console.error(`[Server] Dist not found at ${distPath}`);
-  process.exit(1);
-}
+const distPath = join(__dirname, 'dist');
 
 const mimeTypes = {
   '.html': 'text/html',
@@ -33,54 +22,43 @@ const mimeTypes = {
   '.woff2': 'font/woff2',
 };
 
-const server = http.createServer((req, res) => {
-  let urlPath = req.url.split('?')[0];
-
-  // Remove leading slash
-  if (urlPath.startsWith('/')) urlPath = urlPath.slice(1);
-
-  let filePath = path.join(distPath, urlPath);
-
-  // Security check
-  if (!path.resolve(filePath).startsWith(path.resolve(distPath))) {
-    res.writeHead(403);
-    res.end('Forbidden');
-    return;
-  }
-
-  // Check if file exists
-  if (fs.existsSync(filePath)) {
-    const stat = fs.statSync(filePath);
-    if (stat.isDirectory()) {
-      filePath = path.join(filePath, 'index.html');
-    }
-  } else {
-    // SPA fallback - check if it's an asset request
-    const isAsset = /\.\w+$/.test(urlPath);
-    if (!isAsset) {
-      filePath = path.join(distPath, 'index.html');
-    } else {
-      res.writeHead(404);
-      res.end('Not Found');
-      return;
-    }
-  }
-
-  const ext = path.extname(filePath).toLowerCase();
-  const contentType = mimeTypes[ext] || 'text/plain';
-
-  fs.readFile(filePath, (err, content) => {
-    if (err) {
-      console.error(`Error reading ${filePath}:`, err.message);
-      res.writeHead(500);
-      res.end('Internal Server Error');
-      return;
-    }
-    res.writeHead(200, { 'Content-Type': contentType });
+function serveFile(filePath, res) {
+  try {
+    const content = readFileSync(filePath);
+    const ext = extname(filePath);
+    res.writeHead(200, { 'Content-Type': mimeTypes[ext] || 'text/plain' });
     res.end(content);
-  });
-});
+  } catch {
+    res.writeHead(500);
+    res.end('Error');
+  }
+}
 
-server.listen(port, '0.0.0.0', () => {
-  console.log(`[Server] Running on http://0.0.0.0:${port}`);
+createServer((req, res) => {
+  let url = req.url.split('?')[0];
+  
+  // Handle root path
+  if (url === '/') url = '/index.html';
+  
+  const filePath = join(distPath, url);
+  
+  // Security check
+  if (!resolve(filePath).startsWith(resolve(distPath))) {
+    res.writeHead(403);
+    return res.end('Forbidden');
+  }
+  
+  try {
+    const stat = statSync(filePath);
+    if (stat.isDirectory()) {
+      return serveFile(join(filePath, 'index.html'), res);
+    }
+    return serveFile(filePath, res);
+  } catch {
+    // File not found - serve index.html for SPA routing
+    const indexFile = join(distPath, 'index.html');
+    return serveFile(indexFile, res);
+  }
+}).listen(port, '0.0.0.0', () => {
+  console.log(`Server running on port ${port}`);
 });

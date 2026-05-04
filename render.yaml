@@ -24,7 +24,7 @@ services:
     runtime: node
     plan: free
     buildCommand: npm ci && npm run build:web
-    startCommand: node apps/web/serve.mjs
+    startCommand: npm --workspace @eitacraque/web run start
     envVars:
       - key: NODE_ENV
         value: production
