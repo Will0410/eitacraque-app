@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
+    "build:web": "npm --workspace @eitacraque/shared run build && vue-tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint \"src/**/*.{ts,vue}\""
   },
