@@ -24,7 +24,8 @@ services:
      runtime: node
      plan: free
      buildCommand: npm ci && npm run build:web
-     startCommand: npx serve --single apps/web/dist -l $PORT
+     startCommand: npx serve --single dist -l $PORT
+     workingDir: apps/web
      envVars:
        - key: NODE_ENV
          value: production
