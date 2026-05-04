@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: free
     buildCommand: npm ci && npm run build:shared && npm run build:api:prod
-    startCommand: npm --workspace @eitacraque/api run start
+    startCommand: npm --workspace @eitacraque/api run prisma:migrate && npm --workspace @eitacraque/api run prisma:seed && npm --workspace @eitacraque/api run start
     envVars:
       - key: NODE_ENV
         value: production
