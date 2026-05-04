@@ -47,7 +47,7 @@ const mimeTypes = {
 };
 
 const server = http.createServer((req, res) => {
-  // Normalize URL
+  // Normalize URL - handle root path
   let urlPath = decodeURIComponent(req.url);
   if (urlPath.startsWith('/')) {
     urlPath = urlPath.slice(1);
@@ -62,16 +62,17 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // If directory, serve index.html
-  if (fs.existsSync(filePath)) {
+  // If path ends with / or is empty, serve index.html
+  if (urlPath === '' || urlPath.endsWith('/')) {
+    filePath = path.join(distPath, 'index.html');
+  } else if (fs.existsSync(filePath)) {
     const stats = fs.statSync(filePath);
     if (stats.isDirectory()) {
       filePath = path.join(filePath, 'index.html');
     }
   } else {
-    // If file doesn't exist, check if it's a route (SPA fallback)
-    // Only serve index.html for non-asset requests
-    const isAssetRequest = /\.\w+$/.test(urlPath); // Has file extension
+    // For SPA routes (no file extension), serve index.html
+    const isAssetRequest = /\.\w+$/.test(urlPath);
     if (!isAssetRequest) {
       filePath = path.join(distPath, 'index.html');
     } else {
