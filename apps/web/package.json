@@ -7,7 +7,6 @@
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
     "build:web": "npm --workspace @eitacraque/shared run build && vue-tsc -b && vite build",
-    "preview": "vite preview",
     "start": "node serve.mjs",
     "lint": "eslint \"src/**/*.{ts,vue}\""
   },
