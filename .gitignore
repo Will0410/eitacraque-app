@@ -46,3 +46,6 @@ logs/
 tmp/
 temp/
 .cache/
+
+# Web app assets (exclude from git)
+apps/web/dist/
