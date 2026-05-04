@@ -35,13 +35,40 @@ const clipTypeOptions = [
 
 function pickFile(e: Event) {
   const input = e.target as HTMLInputElement;
-  file.value = input.files?.[0] ?? null;
+  const selectedFile = input.files?.[0];
+
+  if (selectedFile) {
+    const maxSize = 500 * 1024 * 1024; // 500 MB
+    if (selectedFile.size > maxSize) {
+      error.value = 'Vídeo muito grande (máximo 500 MB)';
+      return;
+    }
+
+    if (!selectedFile.type.startsWith('video/')) {
+      error.value = 'Selecione um arquivo de vídeo válido';
+      return;
+    }
+
+    error.value = null;
+  }
+
+  file.value = selectedFile ?? null;
 }
 
 async function next() {
   error.value = null;
   if (step.value === 1) {
     if (!file.value) return (error.value = 'Selecione um vídeo');
+
+    const maxSize = 500 * 1024 * 1024;
+    if (file.value.size > maxSize) {
+      return (error.value = 'Vídeo muito grande (máximo 500 MB)');
+    }
+
+    if (!file.value.type.startsWith('video/')) {
+      return (error.value = 'Arquivo deve ser um vídeo');
+    }
+
     if (!meta.title.trim()) meta.title = file.value.name.replace(/\.[^.]+$/, '');
     step.value = 2;
     return;

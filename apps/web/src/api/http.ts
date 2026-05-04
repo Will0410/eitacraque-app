@@ -30,16 +30,24 @@ http.interceptors.request.use((config) => {
 });
 
 let refreshing: Promise<string | null> | null = null;
+const requestsAwaitingRefresh = new Set<string>();
 
 http.interceptors.response.use(
   (res) => res,
   async (err: AxiosError) => {
-    const original = err.config as (typeof err.config & { _retried?: boolean }) | undefined;
-    if (err.response?.status === 401 && original && !original._retried && tokenStorage.refresh) {
-      original._retried = true;
-      refreshing ??= refreshAccessToken().finally(() => {
-        refreshing = null;
-      });
+    const original = err.config as (typeof err.config & { __requestId?: string }) | undefined;
+    if (err.response?.status === 401 && original && tokenStorage.refresh) {
+      const requestId = original.__requestId ?? `${Date.now()}-${Math.random()}`;
+      original.__requestId = requestId;
+
+      if (!requestsAwaitingRefresh.has(requestId)) {
+        requestsAwaitingRefresh.add(requestId);
+        refreshing ??= refreshAccessToken().finally(() => {
+          refreshing = null;
+          requestsAwaitingRefresh.clear();
+        });
+      }
+
       const fresh = await refreshing;
       if (fresh) {
         original.headers!.Authorization = `Bearer ${fresh}`;

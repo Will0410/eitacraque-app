@@ -64,14 +64,19 @@ export class GrokClient {
     if (!res.ok) {
       const body = await res.text();
       this.logger.error(`Grok respondeu ${res.status}: ${body}`);
-      throw new Error(`Grok API error ${res.status}`);
+      return this.stub(model);
     }
 
-    const data = (await res.json()) as {
-      choices: Array<{ message: { content: string } }>;
-    };
-    const parsed = JSON.parse(data.choices[0].message.content) as Omit<GrokAnalysisResult, 'modelVersion' | 'raw'>;
-    return { ...parsed, modelVersion: model, raw: data };
+    try {
+      const data = (await res.json()) as {
+        choices: Array<{ message: { content: string } }>;
+      };
+      const parsed = JSON.parse(data.choices[0].message.content) as Omit<GrokAnalysisResult, 'modelVersion' | 'raw'>;
+      return { ...parsed, modelVersion: model, raw: data };
+    } catch (err) {
+      this.logger.error(`Erro ao parsear resposta Grok: ${err}`);
+      return this.stub(model);
+    }
   }
 
   private buildPrompt(clipType: string, position?: string | null) {

@@ -1,6 +1,7 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AccountType, ClipStatus } from '@eitacraque/shared';
+import type { Clip, ClipType, Position } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { AnalysesService } from '../analyses/analyses.service';
 import type { AuthenticatedUser } from '../common/decorators/current-user.decorator';
@@ -9,6 +10,8 @@ import { MuxService } from './mux.service';
 
 @Injectable()
 export class ClipsService {
+  private readonly logger = new Logger(ClipsService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly mux: MuxService,
@@ -84,30 +87,60 @@ export class ClipsService {
     return clip;
   }
 
-  private toClipDto(clip: {
-    id: string;
-    athleteId: string;
-    title: string;
-    description: string | null;
-    clipType: any;
-    position: any;
-    matchDate: Date | null;
-    opponent: string | null;
-    muxAssetId: string | null;
-    muxPlaybackId: string | null;
-    durationSeconds: number | null;
-    status: any;
-    views: number;
-    likes: number;
-    createdAt: Date;
-  }) {
+  async finalizeMuxWebhook(uploadId: string): Promise<void> {
+    const clip = await this.prisma.clip.findUnique({ where: { muxUploadId: uploadId } });
+    if (!clip) {
+      this.logger.warn(`Webhook MUX: upload ${uploadId} não encontrado no BD`);
+      return;
+    }
+
+    const asset = await this.mux.getAssetByUploadId(uploadId);
+    if (!asset) {
+      this.logger.warn(`Webhook MUX: asset para upload ${uploadId} não encontrado`);
+      return;
+    }
+
+    const playbackId = asset.playback_ids?.[0]?.id ?? null;
+    const updated = await this.prisma.clip.update({
+      where: { id: clip.id },
+      data: {
+        muxAssetId: asset.id,
+        muxPlaybackId: playbackId,
+        durationSeconds: asset.duration ? Math.round(asset.duration) : null,
+        thumbnailUrl: playbackId ? `https://image.mux.com/${playbackId}/thumbnail.jpg` : null,
+        status: ClipStatus.ANALYZING,
+      },
+    });
+
+    void this.analyses.queueAnalysis(updated.id);
+    this.logger.debug(`Webhook MUX: clip ${clip.id} atualizado para ANALYZING`);
+  }
+
+  async markUploadFailed(uploadId: string): Promise<void> {
+    const clip = await this.prisma.clip.findUnique({ where: { muxUploadId: uploadId } });
+    if (!clip) {
+      this.logger.warn(`Webhook MUX error: upload ${uploadId} não encontrado`);
+      return;
+    }
+
+    await this.prisma.clip.update({
+      where: { id: clip.id },
+      data: { status: ClipStatus.FAILED },
+    });
+
+    this.logger.warn(`Webhook MUX: clip ${clip.id} marcado como FAILED`);
+  }
+
+  private toClipDto(
+    clip: Pick<Clip, 'id' | 'athleteId' | 'title' | 'description' | 'clipType' | 'position' | 'matchDate' | 'opponent' | 'muxAssetId' | 'muxPlaybackId' | 'durationSeconds' | 'status' | 'views' | 'likes' | 'createdAt'>,
+  ) {
     return {
       id: clip.id,
       athleteId: clip.athleteId,
       title: clip.title,
       description: clip.description,
-      clipType: clip.clipType,
-      position: clip.position,
+      clipType: clip.clipType as ClipType,
+      position: clip.position as Position | null,
       matchDate: clip.matchDate?.toISOString() ?? null,
       opponent: clip.opponent,
       muxAssetId: clip.muxAssetId,

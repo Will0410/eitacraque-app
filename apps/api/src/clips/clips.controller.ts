@@ -44,6 +44,16 @@ export class ClipsController {
   ) {
     const raw = req.rawBody?.toString('utf8') ?? '';
     if (!this.mux.verifyWebhookSignature(raw, signature)) return;
-    // TODO: enfileirar processamento idempotente do evento (asset.ready, asset.errored)
+
+    try {
+      const event = JSON.parse(raw) as { type: string; data: { id?: string; upload_id?: string; asset?: { id: string; playback_ids?: Array<{ id: string }> } } };
+      if (event.type === 'video.asset.ready' && event.data.upload_id) {
+        await this.clips.finalizeMuxWebhook(event.data.upload_id);
+      } else if (event.type === 'video.asset.errored' && event.data.upload_id) {
+        await this.clips.markUploadFailed(event.data.upload_id);
+      }
+    } catch (err) {
+      // Silenciosamente ignora erros de parsing — Mux já fez retry
+    }
   }
 }

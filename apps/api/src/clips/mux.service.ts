@@ -51,9 +51,15 @@ export class MuxService {
       this.logger.warn('Webhook MUX sem assinatura — configure MUX_WEBHOOK_SECRET');
       return false;
     }
-    // TODO: implementar verificação real com HMAC-SHA256
-    // Por enquanto, aceita qualquer webhook com secret configurada
-    this.logger.debug(`Webhook MUX recebido de ${header.substring(0, 20)}...`);
-    return true;
+
+    try {
+      const { createHmac, timingSafeEqual } = require('crypto');
+      const hash = createHmac('sha256', secret).update(rawBody).digest('hex');
+      const headerHash = header.split(',')[0];
+      return timingSafeEqual(Buffer.from(hash), Buffer.from(headerHash));
+    } catch (err) {
+      this.logger.error('Erro ao verificar webhook MUX', err);
+      return false;
+    }
   }
 }
