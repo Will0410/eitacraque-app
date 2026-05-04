@@ -3,7 +3,7 @@ services:
     name: eitacraque-api
     runtime: node
     plan: free
-    buildCommand: npm ci && npm run build:shared && npm --workspace @eitacraque/api run prisma:generate && npm run build:api
+    buildCommand: npm ci && npm run build:shared && npm run build:api:prod
     startCommand: npm --workspace @eitacraque/api run start
     envVars:
       - key: NODE_ENV
