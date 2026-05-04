@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
 import { ClipStatus } from '@eitacraque/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import type { AuthenticatedUser } from '../common/decorators/current-user.decorator';
@@ -35,7 +36,7 @@ export class AnalysesService {
       position: clip.position,
     });
 
-    await this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const analysis = await tx.aiAnalysis.upsert({
         where: { clipId: clip.id },
         create: {
@@ -85,7 +86,7 @@ export class AnalysesService {
     });
 
     const allScores = clip.ratings.map((r: typeof clip.ratings[0]) => r.score);
-    const scoutScores = scoutRatings.map((r) => r.score);
+    const scoutScores = scoutRatings.map((r: typeof scoutRatings[0]) => r.score);
     const avg = (xs: number[]) => (xs.length ? xs.reduce((a: number, b: number) => a + b, 0) / xs.length : 0);
 
     return {
