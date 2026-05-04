@@ -15,7 +15,7 @@
     "build:shared": "npm --workspace @eitacraque/shared run build",
     "build:api": "npm --workspace @eitacraque/api run build",
     "build:api:prod": "npm --workspace @eitacraque/api run prisma:generate && npm --workspace @eitacraque/api run build",
-    "build:web": "npm --workspace @eitacraque/web run build",
+    "build:web": "npm run build:shared && npm --workspace @eitacraque/web run build",
     "lint": "npm-run-all -p lint:api lint:web",
     "lint:api": "npm --workspace @eitacraque/api run lint",
     "lint:web": "npm --workspace @eitacraque/web run lint",
