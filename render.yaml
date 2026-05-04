@@ -19,15 +19,13 @@ services:
       - key: MUX_TOKEN_SECRET
         sync: false
 
-  - type: web
+  - type: static
     name: eitacraque-web
-    runtime: node
     plan: free
     buildCommand: npm ci && npm run build:web
-    startCommand: node start-web.mjs
+    publishPath: ./apps/web/dist
     envVars:
       - key: NODE_ENV
         value: production
       - key: VITE_API_URL
         value: https://eitacraque-api.onrender.com
-        sync: false
