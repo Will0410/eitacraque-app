@@ -12,6 +12,14 @@ const __dirname = dirname(__filename);
 const port = process.env.PORT || 4173;
 const distPath = path.join(__dirname, 'dist');
 
+console.log(`[Server] Starting on port ${port}`);
+console.log(`[Server] Dist path: ${distPath}`);
+
+if (!fs.existsSync(distPath)) {
+  console.error(`[Server] Dist not found at ${distPath}`);
+  process.exit(1);
+}
+
 const mimeTypes = {
   '.html': 'text/html',
   '.js': 'application/javascript',
@@ -26,41 +34,53 @@ const mimeTypes = {
 };
 
 const server = http.createServer((req, res) => {
-  let filePath = path.join(distPath, req.url);
+  let urlPath = req.url.split('?')[0];
 
-  // Ensure requested path is within dist folder (security)
+  // Remove leading slash
+  if (urlPath.startsWith('/')) urlPath = urlPath.slice(1);
+
+  let filePath = path.join(distPath, urlPath);
+
+  // Security check
   if (!path.resolve(filePath).startsWith(path.resolve(distPath))) {
-    res.writeHead(404);
-    res.end('Not Found');
+    res.writeHead(403);
+    res.end('Forbidden');
     return;
   }
 
-  // If directory, serve index.html
-  if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
-    filePath = path.join(filePath, 'index.html');
-  }
-
-  // If file doesn't exist, serve index.html (SPA fallback)
-  if (!fs.existsSync(filePath)) {
-    filePath = path.join(distPath, 'index.html');
-  }
-
-  const ext = path.extname(filePath).toLowerCase();
-  const contentType = mimeTypes[ext] || 'application/octet-stream';
-
-  fs.readFile(filePath, (err, content) => {
-    if (err) {
+  // Check if file exists
+  if (fs.existsSync(filePath)) {
+    const stat = fs.statSync(filePath);
+    if (stat.isDirectory()) {
+      filePath = path.join(filePath, 'index.html');
+    }
+  } else {
+    // SPA fallback - check if it's an asset request
+    const isAsset = /\.\w+$/.test(urlPath);
+    if (!isAsset) {
+      filePath = path.join(distPath, 'index.html');
+    } else {
       res.writeHead(404);
       res.end('Not Found');
       return;
     }
+  }
 
+  const ext = path.extname(filePath).toLowerCase();
+  const contentType = mimeTypes[ext] || 'text/plain';
+
+  fs.readFile(filePath, (err, content) => {
+    if (err) {
+      console.error(`Error reading ${filePath}:`, err.message);
+      res.writeHead(500);
+      res.end('Internal Server Error');
+      return;
+    }
     res.writeHead(200, { 'Content-Type': contentType });
     res.end(content);
   });
 });
 
 server.listen(port, '0.0.0.0', () => {
-  console.log(`✓ Web server running on http://0.0.0.0:${port}`);
-  console.log(`✓ Serving files from ${distPath}`);
+  console.log(`[Server] Running on http://0.0.0.0:${port}`);
 });

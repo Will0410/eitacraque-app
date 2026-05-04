@@ -19,11 +19,12 @@ services:
       - key: MUX_TOKEN_SECRET
         sync: false
 
-  - type: static
+  - type: web
     name: eitacraque-web
+    runtime: node
     plan: free
     buildCommand: npm ci && npm run build:web
-    publishPath: ./apps/web/dist
+    startCommand: node apps/web/serve.mjs
     envVars:
       - key: NODE_ENV
         value: production
