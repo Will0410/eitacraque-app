@@ -1,0 +1,446 @@
+// EitaCraque — schema completo do domínio
+// gerar client: npm run prisma:generate
+// rodar migration: npm run prisma:migrate
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────────────────
+
+enum AccountType {
+  ATHLETE
+  SCOUT
+  CLUB
+  FAN
+}
+
+enum Position {
+  GOALKEEPER
+  RIGHT_BACK
+  LEFT_BACK
+  CENTER_BACK
+  DEFENSIVE_MID
+  CENTER_MID
+  ATTACKING_MID
+  RIGHT_WING
+  LEFT_WING
+  STRIKER
+}
+
+enum Foot {
+  RIGHT
+  LEFT
+  BOTH
+}
+
+enum Category {
+  SUB_11
+  SUB_13
+  SUB_15
+  SUB_17
+  SUB_20
+  PROFESSIONAL
+  AMATEUR
+}
+
+enum ClipType {
+  GOAL
+  DRIBBLE
+  PASS
+  DEFENSE
+  SAVE
+  ASSIST
+  FREE_KICK
+  GENERAL
+}
+
+enum ClipStatus {
+  UPLOADING
+  PROCESSING
+  ANALYZING
+  READY
+  FAILED
+  REMOVED
+}
+
+enum Attribute {
+  FINISHING
+  DRIBBLING
+  PASSING
+  VISION
+  PACE
+  STRENGTH
+  POSITIONING
+  DECISION_MAKING
+}
+
+enum NotificationKind {
+  SCOUT_VISIT
+  NEW_RATING
+  ACHIEVEMENT
+  AI_ALERT
+  NEW_PROPOSAL
+  NEW_FOLLOWER
+  NEW_COMMENT
+  CLIP_READY
+}
+
+enum ProposalStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  WITHDRAWN
+}
+
+enum VerificationStatus {
+  UNVERIFIED
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+// ─────────────────────────────────────────────────────────
+// Identidade
+// ─────────────────────────────────────────────────────────
+
+model User {
+  id              String      @id @default(uuid())
+  email           String      @unique
+  passwordHash    String
+  accountType     AccountType
+  displayName     String
+  avatarUrl       String?
+  emailVerified   Boolean     @default(false)
+  emailVerifyToken String?    @unique
+  passwordResetToken String?  @unique
+  passwordResetExpiresAt DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  athleteProfile  AthleteProfile?
+  scoutProfile    ScoutProfile?
+  clubProfile     ClubProfile?
+
+  refreshTokens   RefreshToken[]
+  clips           Clip[]            @relation("AthleteClips")
+  comments        Comment[]
+  ratings         CommunityRating[]
+  followers       Follow[]          @relation("Followed")
+  following       Follow[]          @relation("Follower")
+  notifications   Notification[]
+  sentMessages    Message[]         @relation("SentMessages")
+  chatParticipations ChatParticipant[]
+  proposalsSent   Proposal[]        @relation("ProposalsByClub")
+  proposalsReceived Proposal[]      @relation("ProposalsToAthlete")
+  savedSearches   SavedSearch[]
+  scoutVisits     ScoutVisit[]      @relation("ScoutVisitor")
+  visitedAthletes ScoutVisit[]      @relation("VisitedAthlete")
+
+  @@index([accountType])
+}
+
+model RefreshToken {
+  id          String   @id @default(uuid())
+  userId      String
+  tokenHash   String   @unique
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// ─────────────────────────────────────────────────────────
+// Perfis (1-1 com User)
+// ─────────────────────────────────────────────────────────
+
+model AthleteProfile {
+  userId            String    @id
+  position          Position?
+  secondaryPosition Position?
+  dominantFoot      Foot?
+  birthDate         DateTime?
+  heightCm          Int?
+  weightKg          Int?
+  category          Category?
+  city              String?
+  state             String?
+  bio               String?
+  overallRating     Float     @default(0)
+  nationalPercentile Float    @default(0)
+  scoutVisits       Int       @default(0)
+  responsibleEmail  String?
+
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clubHistory       AthleteClubHistory[]
+
+  @@index([position, category])
+  @@index([state, city])
+}
+
+model AthleteClubHistory {
+  id           String         @id @default(uuid())
+  athleteId    String
+  clubName     String
+  startDate    DateTime
+  endDate      DateTime?
+
+  athlete      AthleteProfile @relation(fields: [athleteId], references: [userId], onDelete: Cascade)
+
+  @@index([athleteId])
+}
+
+model ScoutProfile {
+  userId           String   @id
+  organizationName String?
+  regions          String[]
+  bio              String?
+
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ClubProfile {
+  userId             String             @id
+  legalName          String
+  cnpj               String?            @unique
+  federation         String?
+  categories         Category[]
+  verificationStatus VerificationStatus @default(UNVERIFIED)
+  verificationDocsUrl String?
+
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────────────────────────────────────
+// Conteúdo: lances
+// ─────────────────────────────────────────────────────────
+
+model Clip {
+  id              String     @id @default(uuid())
+  athleteId       String
+  title           String
+  description     String?
+  clipType        ClipType
+  position        Position?
+  matchDate       DateTime?
+  opponent        String?
+  muxAssetId      String?    @unique
+  muxPlaybackId   String?    @unique
+  muxUploadId     String?    @unique
+  durationSeconds Int?
+  status          ClipStatus @default(UPLOADING)
+  thumbnailUrl    String?
+  views           Int        @default(0)
+  likes           Int        @default(0)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  athlete         User       @relation("AthleteClips", fields: [athleteId], references: [id], onDelete: Cascade)
+  aiAnalysis      AiAnalysis?
+  ratings         CommunityRating[]
+  comments        Comment[]
+  scoutVisits     ScoutVisit[]
+
+  @@index([athleteId, createdAt(sort: Desc)])
+  @@index([status, createdAt(sort: Desc)])
+  @@index([clipType])
+}
+
+model AiAnalysis {
+  id              String    @id @default(uuid())
+  clipId          String    @unique
+  summary         String
+  strengths       String[]
+  weaknesses      String[]
+  overallScore    Float
+  modelVersion    String
+  rawResponse     Json
+  generatedAt     DateTime  @default(now())
+
+  clip            Clip      @relation(fields: [clipId], references: [id], onDelete: Cascade)
+  attributeScores AiAttributeScore[]
+}
+
+model AiAttributeScore {
+  id           String     @id @default(uuid())
+  analysisId   String
+  attribute    Attribute
+  score        Float
+
+  analysis     AiAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  @@unique([analysisId, attribute])
+}
+
+model CommunityRating {
+  id        String   @id @default(uuid())
+  clipId    String
+  userId    String
+  score     Float
+  comment   String?
+  createdAt DateTime @default(now())
+
+  clip      Clip     @relation(fields: [clipId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([clipId, userId])
+  @@index([clipId])
+}
+
+model Comment {
+  id            String   @id @default(uuid())
+  clipId        String
+  userId        String
+  body          String
+  videoTimestamp Float?
+  createdAt     DateTime @default(now())
+
+  clip          Clip     @relation(fields: [clipId], references: [id], onDelete: Cascade)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([clipId, createdAt(sort: Desc)])
+}
+
+model Follow {
+  id          String   @id @default(uuid())
+  followerId  String
+  followedId  String
+  createdAt   DateTime @default(now())
+
+  follower    User     @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  followed    User     @relation("Followed", fields: [followedId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followedId])
+  @@index([followedId])
+}
+
+model ScoutVisit {
+  id        String   @id @default(uuid())
+  scoutId   String
+  athleteId String
+  clipId    String?
+  createdAt DateTime @default(now())
+
+  scout     User     @relation("ScoutVisitor", fields: [scoutId], references: [id], onDelete: Cascade)
+  athlete   User     @relation("VisitedAthlete", fields: [athleteId], references: [id], onDelete: Cascade)
+  clip      Clip?    @relation(fields: [clipId], references: [id], onDelete: SetNull)
+
+  @@index([athleteId, createdAt(sort: Desc)])
+}
+
+// ─────────────────────────────────────────────────────────
+// Comunicação
+// ─────────────────────────────────────────────────────────
+
+model Chat {
+  id           String            @id @default(uuid())
+  createdAt    DateTime          @default(now())
+
+  participants ChatParticipant[]
+  messages     Message[]
+}
+
+model ChatParticipant {
+  id        String   @id @default(uuid())
+  chatId    String
+  userId    String
+  joinedAt  DateTime @default(now())
+  lastReadAt DateTime?
+
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([chatId, userId])
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  chatId     String
+  senderId   String
+  body       String
+  proposalId String?  @unique
+  createdAt  DateTime @default(now())
+
+  chat       Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  proposal   Proposal? @relation(fields: [proposalId], references: [id], onDelete: SetNull)
+
+  @@index([chatId, createdAt(sort: Desc)])
+}
+
+model Proposal {
+  id                String         @id @default(uuid())
+  clubId            String
+  athleteId         String
+  category          Category
+  durationMonths    Int
+  monthlyValueCents Int?
+  message           String
+  status            ProposalStatus @default(DRAFT)
+  expiresAt         DateTime
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  club              User           @relation("ProposalsByClub", fields: [clubId], references: [id], onDelete: Cascade)
+  athlete           User           @relation("ProposalsToAthlete", fields: [athleteId], references: [id], onDelete: Cascade)
+  message_link      Message?
+
+  @@index([athleteId, status])
+  @@index([clubId, status])
+}
+
+// ─────────────────────────────────────────────────────────
+// Operacional
+// ─────────────────────────────────────────────────────────
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  kind      NotificationKind
+  title     String
+  body      String
+  payload   Json             @default("{}")
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt, createdAt(sort: Desc)])
+}
+
+model SavedSearch {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  filters   Json
+  alertsEnabled Boolean @default(true)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model RankingSnapshot {
+  id          String   @id @default(uuid())
+  period      String
+  position    Position?
+  category    Category?
+  region      String?
+  computedAt  DateTime @default(now())
+  payload     Json
+
+  @@index([period, computedAt(sort: Desc)])
+}

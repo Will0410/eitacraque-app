@@ -1,0 +1,80 @@
+<script setup lang="ts">
+import { computed } from 'vue';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
+
+const auth = useAuthStore();
+const router = useRouter();
+const route = useRoute();
+
+const items = computed(() => [
+  { to: '/feed', label: 'Feed', icon: '⚽' },
+  { to: '/upload', label: 'Postar', icon: '＋', requiresAuth: true },
+  { to: auth.user ? `/athlete/${auth.user.id}` : '/login', label: 'Perfil', icon: '👤' },
+]);
+
+async function logout() {
+  await auth.logout();
+  router.push('/login');
+}
+</script>
+
+<template>
+  <div class="min-h-screen flex flex-col relative z-10">
+    <!-- Header -->
+    <header class="sticky top-0 z-40 bg-gradient-to-b from-black/50 via-brand-900/30 to-transparent backdrop-blur-md border-b border-white/5">
+      <div class="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
+        <RouterLink to="/feed" class="flex items-center gap-2 group">
+          <div class="text-2xl group-hover:animate-pulse">⚽</div>
+          <span class="font-black text-xl tracking-tight bg-gradient-to-r from-brand-300 to-white bg-clip-text text-transparent">
+            EitaCraque
+          </span>
+        </RouterLink>
+
+        <div class="flex items-center gap-4">
+          <span v-if="auth.user" class="text-sm text-white/70 hidden sm:inline">
+            {{ auth.user.displayName }}
+          </span>
+          <button
+            v-if="auth.user"
+            @click="logout"
+            class="text-xs font-semibold text-white/60 hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-full transition"
+          >
+            Sair
+          </button>
+          <RouterLink v-else to="/login" class="btn-primary !py-2 !px-4 text-sm">
+            Entrar
+          </RouterLink>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-2xl w-full mx-auto px-4 py-6 pb-24 relative">
+      <slot />
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 inset-x-0 z-40 bg-gradient-to-t from-brand-950 via-brand-950/95 to-transparent backdrop-blur-lg border-t border-white/10">
+      <div class="max-w-2xl mx-auto grid grid-cols-3">
+        <RouterLink
+          v-for="item in items"
+          :key="item.to"
+          :to="item.to"
+          class="relative flex flex-col items-center gap-1 py-4 text-xs font-semibold transition-all duration-200 group"
+          :class="{
+            'text-brand-300': route.path.startsWith(item.to.split('/').slice(0, 2).join('/')),
+            'text-white/50 hover:text-white/80': !route.path.startsWith(item.to.split('/').slice(0, 2).join('/'))
+          }"
+        >
+          <span class="text-2xl leading-none group-hover:scale-110 transition-transform">{{ item.icon }}</span>
+          <span class="text-xs">{{ item.label }}</span>
+          <div
+            v-if="route.path.startsWith(item.to.split('/').slice(0, 2).join('/'))"
+            class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-brand-300"
+          ></div>
+        </RouterLink>
+      </div>
+    </nav>
+  </div>
+</template>
