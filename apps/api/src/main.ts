@@ -12,7 +12,7 @@ async function bootstrap() {
   app.use(helmet());
   const isDev = config.get<string>('NODE_ENV') === 'development';
   app.enableCors({
-    origin: isDev ? true : config.get<string>('WEB_ORIGIN', 'http://localhost:5173').split(','),
+    origin: isDev ? true : config.get<string>('WEB_ORIGIN', 'https://eitacraque-app.onrender.com').split(','),
     credentials: true,
   });
 
