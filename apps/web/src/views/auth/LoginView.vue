@@ -2,10 +2,12 @@
 import { reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import { usePwaStore } from '@/stores/pwa';
 
 const router = useRouter();
 const route = useRoute();
 const auth = useAuthStore();
+const pwa = usePwaStore();
 
 const form = reactive({ email: '', password: '' });
 const loading = ref(false);
@@ -24,6 +26,10 @@ async function submit() {
     loading.value = false;
   }
 }
+
+async function installPWA() {
+  await pwa.installPWA();
+}
 </script>
 
 <template>
@@ -40,6 +46,16 @@ async function submit() {
         <div class="text-7xl mb-4 drop-shadow-2xl">⚽</div>
         <h1 class="font-display text-4xl font-black tracking-tight mb-2">EitaCraque</h1>
         <p class="text-gold-300 font-semibold text-sm">Sua vitrine. O olheiro que vê.</p>
+      </div>
+
+      <!-- PWA Install Button -->
+      <div class="flex justify-center mb-4">
+        <button
+          @click="installPWA"
+          class="text-xs font-semibold text-white/60 hover:text-white hover:bg-white/10 px-4 py-2 rounded-full transition border border-white/20"
+        >
+          📱 Instalar App
+        </button>
       </div>
 
       <!-- Card Principal -->
