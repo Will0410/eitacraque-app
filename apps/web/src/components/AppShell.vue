@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
+import { useOnline } from '@vueuse/core';
 import { useAuthStore } from '@/stores/auth';
 
 const auth = useAuthStore();
 const router = useRouter();
 const route = useRoute();
+const online = useOnline();
 
 const items = computed(() => [
   { to: '/feed', label: 'Feed', icon: '⚽' },
@@ -21,8 +23,17 @@ async function logout() {
 
 <template>
   <div class="min-h-screen flex flex-col relative z-10">
+    <!-- Offline Banner -->
+    <Transition name="slide-down">
+      <div v-if="!online" class="fixed top-0 inset-x-0 z-50 bg-red-500/90 backdrop-blur-sm border-b border-red-400 py-2 px-4">
+        <div class="max-w-2xl mx-auto text-center text-sm font-medium text-white">
+          📡 Sem conexão — exibindo conteúdo em cache
+        </div>
+      </div>
+    </Transition>
+
     <!-- Header -->
-    <header class="sticky top-0 z-40 bg-gradient-to-b from-black/50 via-brand-900/30 to-transparent backdrop-blur-md border-b border-white/5">
+    <header class="sticky top-0 z-40 bg-gradient-to-b from-black/50 via-brand-900/30 to-transparent backdrop-blur-md border-b border-white/5" :class="!online && 'mt-10'">
       <div class="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
         <RouterLink to="/feed" class="flex items-center gap-2 group">
           <div class="text-2xl group-hover:animate-pulse">⚽</div>
@@ -55,7 +66,7 @@ async function logout() {
     </main>
 
     <!-- Bottom Navigation -->
-    <nav class="fixed bottom-0 inset-x-0 z-40 bg-gradient-to-t from-brand-950 via-brand-950/95 to-transparent backdrop-blur-lg border-t border-white/10">
+    <nav class="fixed bottom-0 inset-x-0 z-40 bg-gradient-to-t from-brand-950 via-brand-950/95 to-transparent backdrop-blur-lg border-t border-white/10 pb-safe">
       <div class="max-w-2xl mx-auto grid grid-cols-3">
         <RouterLink
           v-for="item in items"
@@ -78,3 +89,20 @@ async function logout() {
     </nav>
   </div>
 </template>
+
+<style scoped>
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.slide-down-enter-from {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+.slide-down-leave-to {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+</style>

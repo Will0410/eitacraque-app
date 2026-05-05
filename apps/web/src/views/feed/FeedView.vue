@@ -78,8 +78,27 @@ onMounted(() => load(true));
       </button>
     </div>
 
-    <div v-if="loading && items.length === 0" class="text-center text-white/50 py-12">
-      Carregando…
+    <div v-if="loading && items.length === 0" class="space-y-5">
+      <div v-for="i in 3" :key="i" class="card overflow-hidden p-0 animate-pulse">
+        <div class="relative aspect-video bg-white/10"></div>
+        <div class="p-5 space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-white/10"></div>
+            <div class="flex-1 space-y-1">
+              <div class="h-4 bg-white/10 rounded w-40"></div>
+              <div class="h-3 bg-white/5 rounded w-24"></div>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <div class="h-4 bg-white/10 rounded w-full"></div>
+            <div class="h-4 bg-white/10 rounded w-4/5"></div>
+          </div>
+          <div class="flex gap-4 pt-2">
+            <div class="h-3 bg-white/5 rounded w-16"></div>
+            <div class="h-3 bg-white/5 rounded w-16"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div v-else-if="error" class="text-center text-red-300 py-12">{{ error }}</div>
@@ -114,7 +133,7 @@ onMounted(() => load(true));
             <!-- IA Score Badge - Direita Superior -->
             <div
               v-if="item.aiOverallScore !== null"
-              class="absolute top-4 right-4 pill bg-gradient-to-r from-yellow-300 to-amber-400 text-gray-900 font-bold text-sm shadow-lg border border-yellow-200"
+              class="absolute top-4 right-4 badge-gold"
             >
               ⭐ {{ item.aiOverallScore.toFixed(1) }}
             </div>
@@ -147,7 +166,7 @@ onMounted(() => load(true));
           </div>
 
           <!-- Título do Lance -->
-          <h3 class="font-bold text-base mb-3 line-clamp-2 group-hover:text-brand-300 transition">{{ item.clip.title }}</h3>
+          <h3 class="font-display font-black text-base mb-3 line-clamp-2 group-hover:text-gold-300 transition">{{ item.clip.title }}</h3>
 
           <!-- Contexto de Partida -->
           <div v-if="item.clip.opponent || item.clip.matchDate" class="mb-4 pb-4 border-b border-white/10">

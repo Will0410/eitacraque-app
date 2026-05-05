@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router';
 import type { Clip, ClipAnalysisResponse } from '@eitacraque/shared';
 import { clipsApi } from '@/api/clips';
 import AppShell from '@/components/AppShell.vue';
+import '@mux/mux-player';
 
 const route = useRoute();
 const clip = ref<Clip | null>(null);
@@ -41,24 +42,25 @@ onMounted(load);
     <div v-else-if="error" class="text-center text-red-300 py-12">{{ error }}</div>
     <template v-else-if="clip">
       <div class="aspect-video rounded-2xl overflow-hidden bg-black mb-4">
-        <iframe
+        <mux-player
           v-if="clip.muxPlaybackId"
-          :src="`https://stream.mux.com/${clip.muxPlaybackId}.m3u8`"
+          :playback-id="clip.muxPlaybackId"
           class="w-full h-full"
-          allowfullscreen
-        ></iframe>
+          controls
+          stream-type="on-demand"
+        ></mux-player>
         <div v-else class="w-full h-full flex items-center justify-center text-white/40">
           Vídeo ainda processando…
         </div>
       </div>
 
-      <h1 class="text-xl font-bold mb-1">{{ clip.title }}</h1>
+      <h1 class="font-display text-2xl font-black mb-1">{{ clip.title }}</h1>
       <p v-if="clip.description" class="text-white/70 text-sm mb-4">{{ clip.description }}</p>
 
-      <section v-if="analysis?.ai" class="card mb-4">
-        <div class="flex items-baseline justify-between mb-3">
-          <h2 class="font-bold">Análise IA</h2>
-          <span class="text-2xl font-extrabold">{{ analysis.ai.overallScore.toFixed(1) }}</span>
+      <section v-if="analysis?.ai" class="card-gold mb-4">
+        <div class="text-center mb-4">
+          <div class="score-display text-5xl">{{ analysis.ai.overallScore.toFixed(1) }}</div>
+          <p class="text-xs text-white/60 mt-2">Score de IA</p>
         </div>
         <p class="text-sm text-white/80 mb-3">{{ analysis.ai.summary }}</p>
 
@@ -84,19 +86,19 @@ onMounted(load);
             class="flex items-center gap-3 text-xs"
           >
             <span class="w-32 text-white/70">{{ a.attribute }}</span>
-            <div class="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
-              <div class="h-full bg-white" :style="{ width: `${(a.score / 10) * 100}%` }"></div>
+            <div class="progress-bar-gold">
+              <div class="progress-bar-gold-fill" :style="{ width: `${(a.score / 10) * 100}%` }"></div>
             </div>
             <span class="w-8 text-right font-semibold">{{ a.score.toFixed(1) }}</span>
           </div>
         </div>
       </section>
 
-      <section v-if="analysis" class="card">
-        <h2 class="font-bold mb-3">Avaliação da comunidade</h2>
+      <section v-if="analysis" class="card-gold">
+        <h2 class="font-display font-black mb-3">Avaliação da comunidade</h2>
         <div class="flex items-baseline gap-4 mb-4">
           <div>
-            <div class="text-3xl font-extrabold">{{ analysis.community.averageScore.toFixed(1) }}</div>
+            <div class="score-display text-4xl">{{ analysis.community.averageScore.toFixed(1) }}</div>
             <div class="text-xs text-white/50">{{ analysis.community.ratingsCount }} avaliações</div>
           </div>
           <div v-if="analysis.community.scoutWeightedAverage > 0">

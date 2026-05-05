@@ -37,16 +37,16 @@ async function submit() {
     <div class="w-full max-w-sm relative z-10">
       <!-- Logo/Title -->
       <div class="text-center mb-10">
-        <div class="text-6xl mb-4 drop-shadow-lg">⚽</div>
-        <h1 class="text-4xl font-black tracking-tight mb-2">EitaCraque</h1>
-        <p class="text-brand-200 font-semibold text-sm">Sua vitrine. O olheiro que vê.</p>
+        <div class="text-7xl mb-4 drop-shadow-2xl">⚽</div>
+        <h1 class="font-display text-4xl font-black tracking-tight mb-2">EitaCraque</h1>
+        <p class="text-gold-300 font-semibold text-sm">Sua vitrine. O olheiro que vê.</p>
       </div>
 
       <!-- Card Principal -->
-      <div class="card p-0 overflow-hidden">
+      <div class="card-gold p-0 overflow-hidden">
         <!-- Tabs -->
         <div class="flex border-b border-white/10 bg-white/5">
-          <button class="flex-1 py-4 font-bold text-sm border-b-2 border-brand-400 text-white">Entrar</button>
+          <button class="flex-1 py-4 font-bold text-sm border-b-2 border-gold-400 text-white">Entrar</button>
           <RouterLink
             to="/register"
             class="flex-1 py-4 font-bold text-sm border-b-2 border-transparent text-white/50 text-center hover:text-white transition"
@@ -100,7 +100,7 @@ async function submit() {
       <!-- Signup Link -->
       <p class="text-center text-sm text-white/60 mt-6">
         Ainda não tem conta?
-        <RouterLink to="/register" class="text-brand-300 font-bold hover:text-brand-200 transition">
+        <RouterLink to="/register" class="text-gold-300 font-bold hover:text-gold-200 transition">
           Cadastrar aqui
         </RouterLink>
       </p>
