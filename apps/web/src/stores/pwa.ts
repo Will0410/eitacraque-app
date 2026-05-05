@@ -1,11 +1,16 @@
 import { defineStore } from 'pinia'
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt(): Promise<void>
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
+}
+
 export const usePwaStore = defineStore('pwa', {
   state: () => ({
-    deferredPrompt: null as Event | null,
+    deferredPrompt: null as BeforeInstallPromptEvent | null,
   }),
   actions: {
-    setDeferredPrompt(event: Event) {
+    setDeferredPrompt(event: BeforeInstallPromptEvent) {
       this.deferredPrompt = event
     },
     clearDeferredPrompt() {
