@@ -3,8 +3,10 @@ import { computed } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useOnline } from '@vueuse/core';
 import { useAuthStore } from '@/stores/auth';
+import { usePwaStore } from '@/stores/pwa';
 
 const auth = useAuthStore();
+const pwa = usePwaStore();
 const router = useRouter();
 const route = useRoute();
 const online = useOnline();
@@ -18,6 +20,10 @@ const items = computed(() => [
 async function logout() {
   await auth.logout();
   router.push('/login');
+}
+
+async function installPWA() {
+  await pwa.installPWA();
 }
 </script>
 
@@ -52,6 +58,13 @@ async function logout() {
             class="text-xs font-semibold text-white/60 hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-full transition"
           >
             Sair
+          </button>
+          <button
+            v-if="!auth.user"
+            @click="installPWA"
+            class="text-xs font-semibold text-white/60 hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-full transition border border-white/20"
+          >
+            Instalar
           </button>
           <RouterLink v-else to="/login" class="btn-primary !py-2 !px-4 text-sm">
             Entrar
