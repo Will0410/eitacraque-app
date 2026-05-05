@@ -3,6 +3,7 @@ import { RouterView } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { usePwaStore } from '@/stores/pwa';
 import { onMounted } from 'vue';
+import type { BeforeInstallPromptEvent } from '@/stores/pwa';
 
 const auth = useAuthStore();
 const pwa = usePwaStore();
@@ -11,11 +12,11 @@ auth.hydrate();
 
 // Listen for the beforeinstallprompt event
 onMounted(() => {
-  window.addEventListener('beforeinstallprompt', (e) => {
+  window.addEventListener('beforeinstallprompt', (e: Event) => {
     // Prevent the mini-infobar from appearing on mobile
     e.preventDefault();
     // Stash the event so it can be triggered later
-    pwa.setDeferredPrompt(e);
+    pwa.setDeferredPrompt(e as BeforeInstallPromptEvent);
   });
   
   window.addEventListener('appinstalled', () => {
