@@ -5,7 +5,8 @@
   "description": "EitaCraque API — NestJS backend",
    "scripts": {
      "dev": "npm run build && dotenv -e ../../.env -- nest start --watch",
-     "build": "nest build",
+     "build": "npm run prisma:generate && nest build",
+     "prebuild": "prisma generate",
      "start": "npx prisma migrate deploy && node dist/main.js",
      "lint": "eslint \"src/**/*.ts\"",
      "prisma:generate": "prisma generate",
