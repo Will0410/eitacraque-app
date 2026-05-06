@@ -17,7 +17,7 @@ const error = ref<string | null>(null);
 const myScore = ref<number>(7);
 
 const canContact = computed(() => {
-  return auth.user && auth.user.accountType !== 'ATHLETE' && auth.user.id !== clip.value?.userId;
+  return auth.user && auth.user.accountType !== 'ATHLETE' && auth.user.id !== clip.value?.athleteId;
 });
 
 async function load() {
@@ -65,8 +65,8 @@ onMounted(load);
       <p v-if="clip.description" class="text-white/70 text-sm mb-3">{{ clip.description }}</p>
 
       <button
-        v-if="canContact && clip.userId"
-        @click="router.push(`/chat/${clip.userId}`)"
+        v-if="canContact && clip.athleteId"
+        @click="router.push(`/chat/${clip.athleteId}`)"
         class="btn-primary w-full mb-4 !py-3"
       >
         💬 Contatar Atleta

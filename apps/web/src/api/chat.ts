@@ -21,7 +21,7 @@ export const chatApi = {
   getConversations: async (): Promise<Conversation[]> => {
     try {
       const res = await http.get<Conversation[]>('/chat/conversations');
-      return res || [];
+      return (res as any).data || [];
     } catch {
       return [];
     }
@@ -30,7 +30,7 @@ export const chatApi = {
   getMessages: async (userId: string): Promise<Message[]> => {
     try {
       const res = await http.get<Message[]>(`/chat/${userId}/messages`);
-      return res || [];
+      return (res as any).data || [];
     } catch {
       return [];
     }
@@ -38,6 +38,6 @@ export const chatApi = {
 
   sendMessage: async (userId: string, content: string): Promise<Message> => {
     const res = await http.post<Message>(`/chat/${userId}/messages`, { content });
-    return res;
+    return (res as any).data;
   },
 };
