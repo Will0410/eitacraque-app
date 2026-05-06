@@ -18,9 +18,15 @@ const items = computed(() => {
     { to: auth.user ? `/athlete/${auth.user.id}` : '/login', label: 'Perfil', icon: '👤' },
   ];
 
-  // Adiciona itemextra para olheiros
+  // Para olheiros: reorganiza para 5 items no bottom
   if (auth.user && auth.user.accountType === 'SCOUT') {
-    base.splice(2, 0, { to: '/my-tracks', label: 'Radar', icon: '🎯' });
+    return [
+      { to: '/feed', label: 'Feed', icon: '⚽' },
+      { to: '/my-tracks', label: 'Radar', icon: '🎯' },
+      { to: '/chat', label: 'Chat', icon: '💬' },
+      { to: '/proposals', label: 'Propostas', icon: '💼' },
+      { to: auth.user ? `/scout/${auth.user.id}` : '/login', label: 'Perfil', icon: '👤' },
+    ];
   }
 
   return base;
@@ -58,32 +64,6 @@ async function installPWA() {
         </RouterLink>
 
          <div class="flex items-center gap-2">
-           <!-- Scout Quick Links -->
-           <div v-if="auth.user && auth.user.accountType === 'SCOUT'" class="flex items-center gap-1">
-             <RouterLink to="/my-tracks" class="text-xs font-semibold text-white/60 hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-full transition">
-               🎯 Radar
-             </RouterLink>
-             <RouterLink to="/proposals" class="text-xs font-semibold text-white/60 hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-full transition">
-               💼 Propostas
-             </RouterLink>
-             <RouterLink to="/meetings" class="text-xs font-semibold text-white/60 hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-full transition">
-               📅 Encontros
-             </RouterLink>
-             <RouterLink to="/ratings" class="text-xs font-semibold text-white/60 hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-full transition">
-               ⭐ Avaliações
-             </RouterLink>
-           </div>
-
-           <!-- Athlete & Club Links -->
-           <div v-else-if="auth.user && (auth.user.accountType === 'ATHLETE' || auth.user.accountType === 'CLUB')" class="flex items-center gap-1">
-             <RouterLink to="/proposals" class="text-xs font-semibold text-white/60 hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-full transition">
-               💼 Propostas
-             </RouterLink>
-             <RouterLink to="/meetings" class="text-xs font-semibold text-white/60 hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-full transition">
-               📅 Encontros
-             </RouterLink>
-           </div>
-
            <span v-if="auth.user" class="text-sm text-white/70 hidden sm:inline">
              {{ auth.user.displayName }}
            </span>
@@ -115,7 +95,7 @@ async function installPWA() {
 
      <!-- Bottom Navigation -->
      <nav class="fixed bottom-0 inset-x-0 z-40 bg-gradient-to-t from-brand-950 via-brand-950/95 to-transparent backdrop-blur-lg border-t border-white/10 pb-safe">
-       <div :class="['max-w-2xl mx-auto grid', items.length === 4 ? 'grid-cols-4' : 'grid-cols-3']">
+       <div :class="['max-w-2xl mx-auto grid', items.length === 5 ? 'grid-cols-5' : items.length === 4 ? 'grid-cols-4' : 'grid-cols-3']">
         <RouterLink
           v-for="item in items"
           :key="item.to"

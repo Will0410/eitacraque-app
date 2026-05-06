@@ -1,17 +1,24 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { onMounted, ref, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import type { Clip, ClipAnalysisResponse } from '@eitacraque/shared';
 import { clipsApi } from '@/api/clips';
+import { useAuthStore } from '@/stores/auth';
 import AppShell from '@/components/AppShell.vue';
 import '@mux/mux-player';
 
 const route = useRoute();
+const router = useRouter();
+const auth = useAuthStore();
 const clip = ref<Clip | null>(null);
 const analysis = ref<ClipAnalysisResponse | null>(null);
 const loading = ref(true);
 const error = ref<string | null>(null);
 const myScore = ref<number>(7);
+
+const canContact = computed(() => {
+  return auth.user && auth.user.accountType !== 'ATHLETE' && auth.user.id !== clip.value?.userId;
+});
 
 async function load() {
   loading.value = true;
@@ -55,7 +62,15 @@ onMounted(load);
       </div>
 
       <h1 class="font-display text-2xl font-black mb-1">{{ clip.title }}</h1>
-      <p v-if="clip.description" class="text-white/70 text-sm mb-4">{{ clip.description }}</p>
+      <p v-if="clip.description" class="text-white/70 text-sm mb-3">{{ clip.description }}</p>
+
+      <button
+        v-if="canContact && clip.userId"
+        @click="router.push(`/chat/${clip.userId}`)"
+        class="btn-primary w-full mb-4 !py-3"
+      >
+        💬 Contatar Atleta
+      </button>
 
       <section v-if="analysis?.ai" class="card-gold mb-4">
         <div class="text-center mb-4">

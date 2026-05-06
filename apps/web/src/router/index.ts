@@ -71,6 +71,18 @@
      component: () => import('@/views/rating/ScoutRatingsView.vue'),
      meta: { requiresAuth: true },
    },
+   {
+     path: '/chat',
+     name: 'conversations',
+     component: () => import('@/views/chat/ConversationsView.vue'),
+     meta: { requiresAuth: true },
+   },
+   {
+     path: '/chat/:userId',
+     name: 'chat',
+     component: () => import('@/views/chat/ChatView.vue'),
+     meta: { requiresAuth: true },
+   },
  ];
 
 export const router = createRouter({

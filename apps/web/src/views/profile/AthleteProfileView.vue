@@ -1,14 +1,21 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { onMounted, ref, watch, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import type { AthleteProfileResponse } from '@eitacraque/shared';
 import { usersApi } from '@/api/users';
+import { useAuthStore } from '@/stores/auth';
 import AppShell from '@/components/AppShell.vue';
 
 const route = useRoute();
+const router = useRouter();
+const auth = useAuthStore();
 const data = ref<AthleteProfileResponse | null>(null);
 const loading = ref(true);
 const error = ref<string | null>(null);
+
+const canContact = computed(() => {
+  return auth.user && auth.user.accountType !== 'ATHLETE' && auth.user.id !== route.params.id;
+});
 
 async function load() {
   loading.value = true;
@@ -34,7 +41,7 @@ onMounted(load);
         <div class="w-20 h-20 rounded-full bg-brand-700 flex items-center justify-center text-2xl font-bold" :class="data.profile.nationalPercentile > 75 ? 'ring-2 ring-gold-400' : ''">
           {{ data.user.displayName.charAt(0) }}
         </div>
-        <div>
+        <div class="flex-1">
           <h1 class="font-display text-xl font-black">{{ data.user.displayName }}</h1>
           <p class="text-sm text-white/60">
             {{ data.profile.position ?? '—' }}
@@ -42,6 +49,13 @@ onMounted(load);
             <span v-if="data.profile.city">· {{ data.profile.city }}/{{ data.profile.state }}</span>
           </p>
         </div>
+        <button
+          v-if="canContact"
+          @click="router.push(`/chat/${data.user.id}`)"
+          class="btn-primary !py-2 !px-3 text-sm flex-shrink-0"
+        >
+          💬 Contato
+        </button>
       </header>
 
       <div class="grid grid-cols-3 gap-3 mb-6">
