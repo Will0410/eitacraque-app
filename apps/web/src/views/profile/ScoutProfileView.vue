@@ -15,21 +15,16 @@ const loading = ref(false);
 onMounted(async () => {
   loading.value = true;
   try {
-    const [scoutRes, ratingsRes] = await Promise.all([
-      fetch(`/api/v1/scouts/${scoutId}`).then(r => r.json()),
-      fetch(`/api/v1/scout-ratings/scout/${scoutId}`).then(r => r.json()),
-    ]);
-    scout.value = scoutRes;
-    ratings.value = ratingsRes;
+    const data = await fetch(`/api/v1/scouts/${scoutId}/with-ratings`).then(r => r.json());
+    scout.value = data;
+    ratings.value = data.ratings || [];
   } finally {
     loading.value = false;
   }
 });
 
 const averageRating = computed(() => {
-  if (!ratings.value.length) return 0;
-  const sum = ratings.value.reduce((s, r) => s + r.rating, 0);
-  return (sum / ratings.value.length).toFixed(1);
+  return scout.value?.averageRating?.toFixed(1) || '0.0';
 });
 </script>
 

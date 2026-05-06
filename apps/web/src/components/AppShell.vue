@@ -74,6 +74,16 @@ async function installPWA() {
              </RouterLink>
            </div>
 
+           <!-- Athlete & Club Links -->
+           <div v-else-if="auth.user && (auth.user.accountType === 'ATHLETE' || auth.user.accountType === 'CLUB')" class="flex items-center gap-1">
+             <RouterLink to="/proposals" class="text-xs font-semibold text-white/60 hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-full transition">
+               💼 Propostas
+             </RouterLink>
+             <RouterLink to="/meetings" class="text-xs font-semibold text-white/60 hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-full transition">
+               📅 Encontros
+             </RouterLink>
+           </div>
+
            <span v-if="auth.user" class="text-sm text-white/70 hidden sm:inline">
              {{ auth.user.displayName }}
            </span>

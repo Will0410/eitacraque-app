@@ -15,6 +15,7 @@ import { APP_GUARD } from '@nestjs/core';
  import { PlayerTracksModule } from './player-tracks/player-tracks.module';
  import { MeetingsModule } from './meetings/meetings.module';
  import { ProposalsModule } from './proposals/proposals.module';
+ import { ScoutsModule } from './scouts/scouts.module';
 
 @Module({
    imports: [
@@ -37,6 +38,7 @@ import { APP_GUARD } from '@nestjs/core';
      PlayerTracksModule,
      MeetingsModule,
      ProposalsModule,
+     ScoutsModule,
    ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

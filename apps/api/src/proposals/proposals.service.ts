@@ -70,6 +70,31 @@ export class ProposalsService {
     });
   }
 
+  async findByScout(scoutId: string) {
+    return this.prisma.proposal.findMany({
+      where: { scoutId },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        athlete: { select: { id: true, displayName: true, avatarUrl: true } },
+        club: { select: { id: true, displayName: true, avatarUrl: true } },
+        scout: { include: { user: { select: { displayName: true } } } },
+      },
+    });
+  }
+
+  async findMy(userId: string, accountType: string) {
+    switch (accountType) {
+      case 'ATHLETE':
+        return this.findByAthlete(userId);
+      case 'CLUB':
+        return this.findByClub(userId);
+      case 'SCOUT':
+        return this.findByScout(userId);
+      default:
+        return [];
+    }
+  }
+
   async updateStatus(proposalId: string, userId: string, status: 'ACCEPTED' | 'REJECTED' | 'WITHDRAWN') {
     const proposal = await this.prisma.proposal.findUnique({
       where: { id: proposalId },

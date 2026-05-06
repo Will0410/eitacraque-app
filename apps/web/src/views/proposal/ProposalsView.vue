@@ -10,7 +10,7 @@ const loading = ref(false);
 onMounted(async () => {
   loading.value = true;
   try {
-    const res = await fetch('/api/v1/proposals', {
+    const res = await fetch('/api/v1/proposals/me', {
       headers: { Authorization: `Bearer ${auth.token}` },
     });
     proposals.value = await res.json();
