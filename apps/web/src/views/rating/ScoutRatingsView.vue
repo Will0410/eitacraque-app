@@ -46,7 +46,7 @@ onMounted(async () => {
               <p class="font-display font-black text-lg text-white">{{ r.rater?.displayName }}</p>
               <div class="flex items-center gap-2 mt-1">
                 <div class="flex gap-0.5">
-                  <span v-for="i in 5" :key="i" class="text-lg" :class="i <= r.rating ? '⭐' : '☆'"></span>
+                  <span v-for="i in 5" :key="i" class="text-lg">{{ i <= r.rating ? '⭐' : '☆' }}</span>
                 </div>
                 <span class="font-black text-gold-300 ml-1">{{ r.rating }}/5</span>
               </div>
