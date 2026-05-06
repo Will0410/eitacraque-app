@@ -31,7 +31,7 @@ async function remove(athleteId: string) {
 <template>
   <AppShell>
     <div class="space-y-4">
-      <h1 class="text-2xl font-black text-white">📋 Meus Jogadores Acompanhados</h1>
+      <h1 class="font-display text-3xl font-black bg-gradient-to-r from-gold-300 to-gold-500 bg-clip-text text-transparent mb-6">🎯 Meu Radar de Atletas</h1>
 
       <div v-if="loading" class="space-y-4 animate-pulse">
         <div v-for="i in 5" :key="i" class="card p-4">
@@ -58,22 +58,27 @@ async function remove(athleteId: string) {
               </div>
             </RouterLink>
             <div class="flex-1">
-              <RouterLink :to="`/athlete/${track.athlete.id}`" class="font-bold text-white hover:text-gold-300">
+              <RouterLink :to="`/athlete/${track.athlete.id}`" class="font-display font-black text-lg text-white hover:text-gold-300">
                 {{ track.athlete.displayName }}
               </RouterLink>
-              <div class="flex items-center gap-2 mt-1">
-                <span class="text-xs text-white/60">Prioridade: {{ track.priority }}/5</span>
-                <span v-if="track.potential" class="text-xs text-white/60">Potencial: {{ track.potential }}/100</span>
+              <div class="flex items-center gap-3 mt-2">
+                <div class="flex items-center gap-1">
+                  <span class="text-xs text-white/60">Prioridade:</span>
+                  <div class="flex gap-0.5">
+                    <span v-for="i in 5" :key="i" class="w-1.5 h-1.5 rounded-full" :class="i <= track.priority ? 'bg-gold-400' : 'bg-white/10'"></span>
+                  </div>
+                </div>
+                <span v-if="track.potential" class="text-xs text-gold-300 font-semibold">{{ track.potential }}% potencial</span>
               </div>
               <p v-if="track.notes" class="text-sm text-white/70 mt-2 line-clamp-2">{{ track.notes }}</p>
-              <div v-if="track.tags?.length" class="flex gap-1 mt-2">
-                <span v-for="tag in track.tags" :key="tag" class="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/60">
+              <div v-if="track.tags?.length" class="flex gap-1 mt-2 flex-wrap">
+                <span v-for="tag in track.tags" :key="tag" class="text-xs px-2 py-1 rounded-full bg-gold-400/20 text-gold-300 font-semibold border border-gold-400/30">
                   {{ tag }}
                 </span>
               </div>
             </div>
-            <button @click="remove(track.athleteId)" class="text-red-400 text-sm hover:text-red-300">
-              Remover
+            <button @click="remove(track.athleteId)" class="text-red-400 hover:text-red-300 text-sm font-semibold hover:bg-red-500/10 px-3 py-1.5 rounded-full transition">
+              ✕
             </button>
           </div>
           <div class="text-xs text-white/40 mt-2">

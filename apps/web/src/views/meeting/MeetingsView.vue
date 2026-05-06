@@ -27,7 +27,7 @@ onMounted(async () => {
 <template>
   <AppShell>
     <div class="space-y-4">
-      <h1 class="text-2xl font-black text-white">📅 Encontros</h1>
+      <h1 class="font-display text-3xl font-black bg-gradient-to-r from-gold-300 to-gold-500 bg-clip-text text-transparent mb-6">📅 Encontros Agendados</h1>
 
       <div v-if="loading" class="space-y-4 animate-pulse">
         <div v-for="i in 3" :key="i" class="card p-4">
@@ -41,36 +41,42 @@ onMounted(async () => {
       </div>
 
       <div v-else class="space-y-4">
-        <div v-for="m in meetings" :key="m.id" class="card p-4">
-          <div class="flex justify-between items-start">
-            <div>
-              <h3 class="font-bold text-white">
+        <div v-for="m in meetings" :key="m.id" class="card-gold p-5">
+          <div class="flex justify-between items-start gap-4">
+            <div class="flex-1">
+              <h3 class="font-display font-black text-lg text-white">
                 {{ m.scout?.displayName }} ↔ {{ m.athlete?.displayName }}
               </h3>
-              <p class="text-sm text-white/70">
-                📆 {{ new Date(m.scheduledFor).toLocaleString('pt-BR') }}
-              </p>
-              <p v-if="m.location" class="text-sm text-white/70">📍 {{ m.location }}</p>
-              <p v-if="m.notes" class="text-sm text-white/70 mt-1">{{ m.notes }}</p>
-              <p class="text-xs text-white/50 mt-2">
-                Código: <span class="font-mono font-bold">{{ m.meetingCode }}</span>
-              </p>
+              <div class="flex flex-col gap-2 mt-3 text-sm">
+                <div class="flex items-center gap-2 text-white/70">
+                  <span>📆</span>
+                  <span>{{ new Date(m.scheduledFor).toLocaleString('pt-BR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) }}</span>
+                </div>
+                <div v-if="m.location" class="flex items-center gap-2 text-white/70">
+                  <span>📍</span>
+                  <span>{{ m.location }}</span>
+                </div>
+                <div v-if="m.notes" class="text-white/70">{{ m.notes }}</div>
+              </div>
+              <div class="mt-3 pt-3 border-t border-white/10">
+                <p class="text-xs text-white/50">Código: <span class="font-mono font-bold text-gold-300">{{ m.meetingCode }}</span></p>
+              </div>
             </div>
-            <span class="pill px-3 py-1" :class="{
-              'bg-blue-500/20 text-blue-300': m.status === 'PENDING',
-              'bg-green-500/20 text-green-300': m.status === 'CONFIRMED',
-              'bg-purple-500/20 text-purple-300': m.status === 'COMPLETED',
-              'bg-red-500/20 text-red-300': m.status === 'CANCELLED',
+            <span class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap" :class="{
+              'bg-blue-500/30 text-blue-300 border border-blue-400/50': m.status === 'PENDING',
+              'bg-green-500/30 text-green-300 border border-green-400/50': m.status === 'CONFIRMED',
+              'bg-purple-500/30 text-purple-300 border border-purple-400/50': m.status === 'COMPLETED',
+              'bg-red-500/30 text-red-300 border border-red-400/50': m.status === 'CANCELLED',
             }">
-              {{ m.status }}
+              {{ m.status === 'PENDING' ? '⏳ Pendente' : m.status === 'CONFIRMED' ? '✅ Confirmado' : m.status === 'COMPLETED' ? '🏁 Concluído' : '❌ Cancelado' }}
             </span>
           </div>
-          <div class="mt-3 flex gap-2">
-            <button v-if="m.status === 'PENDING'" class="btn-ghost text-xs py-2 px-3">
+          <div class="mt-4 pt-4 border-t border-white/10 flex gap-2">
+            <button v-if="m.status === 'PENDING'" class="btn-secondary text-xs flex-1">
               Confirmar
             </button>
-            <button class="btn-ghost text-xs py-2 px-3">
-              {{ m.scoutConfirmed && m.athleteConfirmed ? '✅ Ambos confirmaram' : '⏳ Aguardando confirmação' }}
+            <button class="btn-ghost text-xs flex-1">
+              {{ m.scoutConfirmed && m.athleteConfirmed ? '✅ Ambos confirmaram' : '⏳ Aguardando' }}
             </button>
           </div>
         </div>

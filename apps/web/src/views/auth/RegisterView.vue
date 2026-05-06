@@ -58,14 +58,14 @@ async function submit() {
 
     <div class="w-full max-w-md relative z-10">
       <!-- Logo/Title -->
-      <div class="text-center mb-8">
-        <div class="text-6xl mb-3">⚽</div>
-        <h1 class="text-4xl font-black tracking-tight mb-2">EitaCraque</h1>
-        <p class="text-brand-200 font-semibold text-sm">Crie sua conta em segundos</p>
+      <div class="text-center mb-10">
+        <div class="text-7xl mb-4 drop-shadow-2xl">⚽</div>
+        <h1 class="font-display text-4xl font-black tracking-tight mb-2">EitaCraque</h1>
+        <p class="text-gold-300 font-semibold text-sm">Crie sua conta em segundos</p>
       </div>
 
       <!-- Card Principal -->
-      <div class="card p-0 overflow-hidden">
+      <div class="card-gold p-0 overflow-hidden">
         <!-- Tabs -->
         <div class="flex border-b border-white/10 bg-white/5">
           <RouterLink
@@ -74,7 +74,7 @@ async function submit() {
           >
             Entrar
           </RouterLink>
-          <button class="flex-1 py-4 font-bold text-sm border-b-2 border-brand-400 text-white">Cadastrar</button>
+          <button class="flex-1 py-4 font-bold text-sm border-b-2 border-gold-400 text-white">Cadastrar</button>
         </div>
 
         <!-- Form -->
@@ -91,7 +91,7 @@ async function submit() {
                 class="rounded-lg border px-3 py-2.5 text-left text-xs transition font-semibold"
                 :class="
                   form.accountType === opt.value
-                    ? 'border-brand-400 bg-brand-600/20 text-white'
+                    ? 'border-gold-400 bg-gold-400/10 text-white'
                     : 'border-white/10 text-white/70 hover:border-white/30 hover:text-white'
                 "
               >

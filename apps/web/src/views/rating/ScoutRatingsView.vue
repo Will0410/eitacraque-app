@@ -23,7 +23,7 @@ onMounted(async () => {
 <template>
   <AppShell>
     <div class="space-y-4">
-      <h1 class="text-2xl font-black text-white">⭐ Minhas Avaliações</h1>
+      <h1 class="font-display text-3xl font-black bg-gradient-to-r from-gold-300 to-gold-500 bg-clip-text text-transparent mb-6">⭐ Minhas Avaliações</h1>
 
       <div v-if="loading" class="space-y-4 animate-pulse">
         <div v-for="i in 3" :key="i" class="card p-4">
@@ -37,20 +37,25 @@ onMounted(async () => {
       </div>
 
       <div v-else class="space-y-4">
-        <div v-for="r in ratings" :key="r.id" class="card p-4">
-          <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-brand-400 to-brand-700 flex items-center justify-center text-white font-bold">
+        <div v-for="r in ratings" :key="r.id" class="card-gold p-5">
+          <div class="flex items-start gap-4">
+            <div class="w-14 h-14 rounded-full bg-gradient-to-br from-brand-400 to-brand-700 flex items-center justify-center text-white font-bold text-lg flex-shrink-0 ring-2 ring-gold-400/50">
               {{ r.rater?.displayName?.charAt(0) }}
             </div>
-            <div>
-              <p class="font-bold text-white">{{ r.rater?.displayName }}</p>
-              <p class="text-gold-300 font-semibold">{{ r.rating }}/5</p>
+            <div class="flex-1">
+              <p class="font-display font-black text-lg text-white">{{ r.rater?.displayName }}</p>
+              <div class="flex items-center gap-2 mt-1">
+                <div class="flex gap-0.5">
+                  <span v-for="i in 5" :key="i" class="text-lg" :class="i <= r.rating ? '⭐' : '☆'"></span>
+                </div>
+                <span class="font-black text-gold-300 ml-1">{{ r.rating }}/5</span>
+              </div>
             </div>
-            <span class="ml-auto text-xs text-white/40">
+            <span class="text-xs text-white/50 font-semibold">
               {{ new Date(r.createdAt).toLocaleDateString('pt-BR') }}
             </span>
           </div>
-          <p v-if="r.comment" class="mt-3 text-white/80 border-t border-white/10 pt-3">{{ r.comment }}</p>
+          <p v-if="r.comment" class="mt-4 text-white/80 border-t border-white/10 pt-4 italic">{{ r.comment }}</p>
         </div>
       </div>
     </div>
