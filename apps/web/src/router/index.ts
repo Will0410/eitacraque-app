@@ -47,12 +47,12 @@
      name: 'scout-profile',
      component: () => import('@/views/profile/ScoutProfileView.vue'),
    },
-   {
-     path: '/my-tracks',
-     name: 'my-tracks',
-     component: () => import('@/views/scout/PlayerTracksView.vue'),
-     meta: { requiresAuth: true, scoutOnly: true },
-   },
+    {
+      path: '/my-tracks',
+      name: 'my-tracks',
+      component: () => import('@/views/scout/PlayerTracksView.vue'),
+      meta: { requiresAuth: true },
+    },
    {
      path: '/proposals',
      name: 'proposals',
