@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { useScoutRatingsStore } from '@/stores/scoutRatings'; // will create
 import { useAuthStore } from '@/stores/auth';
 import AppShell from '@/components/AppShell.vue';
 

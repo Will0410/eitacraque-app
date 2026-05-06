@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import type { AuthResponse, AuthTokens, LoginRequest, RegisterRequest, User } from '@eitacraque/shared';
+import type { User, AuthTokens, LoginRequest, RegisterRequest } from '@eitacraque/shared';
 import { authApi } from '@/api/auth';
 import { tokenStorage } from '@/api/http';
 
@@ -15,6 +15,7 @@ export const useAuthStore = defineStore('auth', {
 
   getters: {
     isAuthenticated: (s) => !!s.user,
+    token: (s) => tokenStorage.access,
   },
 
   actions: {
