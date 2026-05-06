@@ -57,17 +57,33 @@ async function installPWA() {
           </span>
         </RouterLink>
 
-        <div class="flex items-center gap-4">
-          <span v-if="auth.user" class="text-sm text-white/70 hidden sm:inline">
-            {{ auth.user.displayName }}
-          </span>
-          <button
-            v-if="auth.user"
-            @click="logout"
-            class="text-xs font-semibold text-white/60 hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-full transition"
-          >
-            Sair
-          </button>
+         <div class="flex items-center gap-2">
+           <!-- Scout Quick Links -->
+           <div v-if="auth.user && auth.user.accountType === 'SCOUT'" class="flex items-center gap-1">
+             <RouterLink to="/my-tracks" class="text-xs font-semibold text-white/60 hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-full transition">
+               🎯 Radar
+             </RouterLink>
+             <RouterLink to="/proposals" class="text-xs font-semibold text-white/60 hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-full transition">
+               💼 Propostas
+             </RouterLink>
+             <RouterLink to="/meetings" class="text-xs font-semibold text-white/60 hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-full transition">
+               📅 Encontros
+             </RouterLink>
+             <RouterLink to="/ratings" class="text-xs font-semibold text-white/60 hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-full transition">
+               ⭐ Avaliações
+             </RouterLink>
+           </div>
+
+           <span v-if="auth.user" class="text-sm text-white/70 hidden sm:inline">
+             {{ auth.user.displayName }}
+           </span>
+           <button
+             v-if="auth.user"
+             @click="logout"
+             class="text-xs font-semibold text-white/60 hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-full transition"
+           >
+             Sair
+           </button>
           <button
             v-if="!auth.user"
             @click="installPWA"
