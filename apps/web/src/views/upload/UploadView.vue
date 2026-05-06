@@ -122,8 +122,16 @@ async function sendToMux() {
 
 <template>
   <AppShell>
-    <h1 class="text-xl font-bold mb-1">Postar lance</h1>
-    <p class="text-white/60 text-sm mb-6">Etapa {{ step }} de 3</p>
+    <h1 class="font-display text-2xl font-black mb-6">🎬 Postar Novo Lance</h1>
+    <!-- Step indicator -->
+    <div class="flex items-center justify-center gap-3 mb-8">
+      <div v-for="i in 3" :key="i" class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center font-black" :class="step >= i ? 'bg-gold-400 text-brand-900' : 'bg-white/10 text-white/50'">
+          {{ i }}
+        </div>
+        <span v-if="i < 3" class="w-8 h-0.5 rounded-full" :class="step > i ? 'bg-gold-400' : 'bg-white/10'"></span>
+      </div>
+    </div>
 
     <div v-if="step === 1" class="space-y-4">
       <label class="block card cursor-pointer text-center py-12">
@@ -167,8 +175,8 @@ async function sendToMux() {
         <div class="font-semibold mb-2">
           {{ progress < 100 ? `Enviando vídeo… ${progress}%` : 'Processando com IA…' }}
         </div>
-        <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-          <div class="h-full bg-white transition-all" :style="{ width: `${Math.max(progress, 5)}%` }"></div>
+        <div class="progress-bar-gold">
+          <div class="progress-bar-gold-fill transition-all" :style="{ width: `${Math.max(progress, 5)}%` }"></div>
         </div>
         <p class="text-xs text-white/50 mt-4">
           Você será redirecionado quando a análise estiver pronta.
