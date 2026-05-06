@@ -3,16 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "description": "EitaCraque API — NestJS backend",
-  "scripts": {
-    "dev": "npm run build && dotenv -e ../../.env -- nest start --watch",
-    "build": "nest build",
-    "start": "node dist/main.js",
-    "lint": "eslint \"src/**/*.ts\"",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate deploy",
-    "prisma:studio": "prisma studio",
-    "prisma:seed": "tsx prisma/seed.ts"
-  },
+   "scripts": {
+     "dev": "npm run build && dotenv -e ../../.env -- nest start --watch",
+     "build": "nest build",
+     "start": "npx prisma migrate deploy && node dist/main.js",
+     "lint": "eslint \"src/**/*.ts\"",
+     "prisma:generate": "prisma generate",
+     "prisma:migrate": "prisma migrate deploy",
+     "prisma:studio": "prisma studio",
+     "prisma:seed": "tsx prisma/seed.ts"
+   },
   "dependencies": {
     "@eitacraque/shared": "*",
     "@mux/mux-node": "^9.0.1",
