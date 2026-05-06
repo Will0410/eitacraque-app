@@ -11,11 +11,20 @@ const router = useRouter();
 const route = useRoute();
 const online = useOnline();
 
-const items = computed(() => [
-  { to: '/feed', label: 'Feed', icon: '⚽' },
-  { to: '/upload', label: 'Postar', icon: '＋', requiresAuth: true },
-  { to: auth.user ? `/athlete/${auth.user.id}` : '/login', label: 'Perfil', icon: '👤' },
-]);
+const items = computed(() => {
+  const base = [
+    { to: '/feed', label: 'Feed', icon: '⚽' },
+    { to: '/upload', label: 'Postar', icon: '＋', requiresAuth: true },
+    { to: auth.user ? `/athlete/${auth.user.id}` : '/login', label: 'Perfil', icon: '👤' },
+  ];
+
+  // Adiciona itemextra para olheiros
+  if (auth.user && auth.user.accountType === 'SCOUT') {
+    base.splice(2, 0, { to: '/my-tracks', label: 'Radar', icon: '🎯' });
+  }
+
+  return base;
+});
 
 async function logout() {
   await auth.logout();
@@ -78,9 +87,9 @@ async function installPWA() {
       <slot />
     </main>
 
-    <!-- Bottom Navigation -->
-    <nav class="fixed bottom-0 inset-x-0 z-40 bg-gradient-to-t from-brand-950 via-brand-950/95 to-transparent backdrop-blur-lg border-t border-white/10 pb-safe">
-      <div class="max-w-2xl mx-auto grid grid-cols-3">
+     <!-- Bottom Navigation -->
+     <nav class="fixed bottom-0 inset-x-0 z-40 bg-gradient-to-t from-brand-950 via-brand-950/95 to-transparent backdrop-blur-lg border-t border-white/10 pb-safe">
+       <div :class="['max-w-2xl mx-auto grid', items.length === 4 ? 'grid-cols-4' : 'grid-cols-3']">
         <RouterLink
           v-for="item in items"
           :key="item.to"
