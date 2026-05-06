@@ -51,7 +51,7 @@ export class MeetingsService {
     return this.prisma.meeting.findMany({
       where: { scoutId },
       orderBy: { scheduledFor: 'desc' },
-      include: { athlete: true, proposal: true },
+      include: { scout: true, athlete: true, proposal: true },
     });
   }
 
@@ -59,7 +59,7 @@ export class MeetingsService {
     return this.prisma.meeting.findMany({
       where: { athleteId },
       orderBy: { scheduledFor: 'desc' },
-      include: { scout: { include: { user: true } }, proposal: true },
+      include: { scout: true, athlete: true, proposal: true },
     });
   }
 

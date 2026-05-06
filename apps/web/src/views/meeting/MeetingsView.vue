@@ -45,7 +45,7 @@ onMounted(async () => {
           <div class="flex justify-between items-start">
             <div>
               <h3 class="font-bold text-white">
-                {{ m.scout?.user?.displayName || m.scout?.displayName }} ↔ {{ m.athlete?.displayName }}
+                {{ m.scout?.displayName }} ↔ {{ m.athlete?.displayName }}
               </h3>
               <p class="text-sm text-white/70">
                 📆 {{ new Date(m.scheduledFor).toLocaleString('pt-BR') }}
